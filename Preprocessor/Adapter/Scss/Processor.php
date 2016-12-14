@@ -54,12 +54,16 @@ class Processor implements ContentProcessorInterface
             }
 
             $source = $this->assetSource->findSource($asset);
+
 //TODO: needed?
             $styleFolder = realpath(dirname($source));
+            //If source ends with "web/css" then add styles folder
+            $styleFolder2 = str_replace('web/css', 'styles', $styleFolder);
             $compiler = new Compiler();
 
             $folders = [
                 $styleFolder,
+                $styleFolder2,
                 BP,
             ];
             $compiler->addImportPath(function ($path) use ($folders) {
@@ -96,6 +100,8 @@ class Processor implements ContentProcessorInterface
 //                    }
 //
 //                }
+                var_dump($folders);
+                die('File not found: ' . $path);
 
                 return null;
 
