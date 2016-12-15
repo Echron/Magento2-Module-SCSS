@@ -100,8 +100,8 @@ class Processor implements ContentProcessorInterface
 //                    }
 //
 //                }
-                var_dump($folders);
-                die('File not found: ' . $path);
+                //var_dump($folders);
+                //die('File not found: ' . $path);
 
                 return null;
 
