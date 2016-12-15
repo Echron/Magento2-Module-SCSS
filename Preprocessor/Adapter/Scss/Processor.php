@@ -13,11 +13,15 @@ use Psr\Log\LoggerInterface;
  */
 class Processor implements ContentProcessorInterface
 {
+    const FORMATTER_EXPANDED = 'expanded';
+    const FORMATTER_NESTED = 'nested';
+    const FORMATTER_COMPRESSED = 'compressed';
+    const FORMATTER_COMPACT = 'compact';
+    const FORMATTER_CRUNCHED = 'crunched';
     /**
      * @var LoggerInterface
      */
     private $logger;
-
     /**
      * @var Source
      */
@@ -59,7 +63,7 @@ class Processor implements ContentProcessorInterface
             $styleFolder = realpath(dirname($source));
             //If source ends with "web/css" then add styles folder
             $styleFolder2 = str_replace('web/css', 'styles', $styleFolder);
-            $compiler = new Compiler();
+            $compiler = $this->getSCSSCompiler();
 
             $folders = [
                 $styleFolder,
@@ -71,6 +75,7 @@ class Processor implements ContentProcessorInterface
                 $fileInfo = pathinfo($path);
                 $alternativePath = $fileInfo['dirname'] . '/_' . $fileInfo['basename'];
 
+                //TODO: remove sass
                 $files = [
                     $path . '.scss',
                     $path . '.sass',
@@ -85,23 +90,10 @@ class Processor implements ContentProcessorInterface
                         $exists = file_exists($fullPath);
                         if ($exists) {
                             return $fullPath;
-                            //echo $filePath . ' =>' . $fullPath . PHP_EOL;
                         } else {
-                            // echo $filePath . ' =>' . $fullPath . PHP_EOL;
                         }
                     }
                 }
-
-//                foreach ($folders as $folder) {
-//                    $fullPath = realpath($folder . '/' . $path . '.scss');
-//                    $exists = file_exists($fullPath);
-//                    if ($exists) {
-//                        return $fullPath;
-//                    }
-//
-//                }
-                //var_dump($folders);
-                //die('File not found: ' . $path);
 
                 return null;
 
@@ -116,5 +108,17 @@ class Processor implements ContentProcessorInterface
 
             return $errorMessage;
         }
+    }
+
+    private function getSCSSCompiler()
+    {
+        //TODO: make this configuratable or check magento mode
+        $compiler = new Compiler();
+        //Set line numbers
+        $compiler->setLineNumberStyle(Compiler::LINE_COMMENTS);
+        //Set formatting
+        $compiler->setFormatter(self::FORMATTER_NESTED);
+
+        return $compiler;
     }
 }
