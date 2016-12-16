@@ -13,11 +13,11 @@ use Psr\Log\LoggerInterface;
  */
 class Processor implements ContentProcessorInterface
 {
-    const FORMATTER_EXPANDED = 'expanded';
-    const FORMATTER_NESTED = 'nested';
-    const FORMATTER_COMPRESSED = 'compressed';
-    const FORMATTER_COMPACT = 'compact';
-    const FORMATTER_CRUNCHED = 'crunched';
+    const FORMATTER_EXPANDED = \Leafo\ScssPhp\Formatter\Expanded::class;
+    const FORMATTER_NESTED = \Leafo\ScssPhp\Formatter\Nested::class;
+    const FORMATTER_COMPRESSED = \Leafo\ScssPhp\Formatter\Compressed::class;
+    const FORMATTER_COMPACT = \Leafo\ScssPhp\Formatter\Compact::class;
+    const FORMATTER_CRUNCHED = \Leafo\ScssPhp\Formatter\Crunched::class;
     /**
      * @var LoggerInterface
      */
