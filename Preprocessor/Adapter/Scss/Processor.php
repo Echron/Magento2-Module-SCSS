@@ -99,7 +99,7 @@ class Processor implements ContentProcessorInterface
 
             });
 
-            $result = $compiler->compile($content);
+            $result = '/* Generated ' . date("Y-m-d H:i:s") . ' */' . PHP_EOL . $compiler->compile($content);
 
             return $result;
         } catch (\Exception $e) {
