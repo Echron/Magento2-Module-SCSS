@@ -3,6 +3,7 @@
 namespace Echron\Scss\Preprocessor\Adapter\Scss;
 
 use Leafo\ScssPhp\Compiler;
+use Magento\Framework\App\State;
 use Magento\Framework\View\Asset\ContentProcessorInterface;
 use Magento\Framework\View\Asset\File;
 use Magento\Framework\View\Asset\Source;
@@ -13,11 +14,16 @@ use Psr\Log\LoggerInterface;
  */
 class Processor implements ContentProcessorInterface
 {
+    const FORMATTER_AUTO = 'auto';
     const FORMATTER_EXPANDED = \Leafo\ScssPhp\Formatter\Expanded::class;
     const FORMATTER_NESTED = \Leafo\ScssPhp\Formatter\Nested::class;
     const FORMATTER_COMPRESSED = \Leafo\ScssPhp\Formatter\Compressed::class;
     const FORMATTER_COMPACT = \Leafo\ScssPhp\Formatter\Compact::class;
     const FORMATTER_CRUNCHED = \Leafo\ScssPhp\Formatter\Crunched::class;
+
+    const LINE_NUMBER_STYLE_AUTO = 'auto';
+    const LINE_NUMBER_STYLE_ON = 'on';
+    const LINE_NUMBER_STYLE_OFF = 'off';
     /**
      * @var LoggerInterface
      */
@@ -27,16 +33,19 @@ class Processor implements ContentProcessorInterface
      */
     private $assetSource;
 
+    private $appState;
+
     /**
      * Constructor
      *
      * @param Source $assetSource
      * @param LoggerInterface $logger
      */
-    public function __construct(Source $assetSource, LoggerInterface $logger)
+    public function __construct(Source $assetSource, LoggerInterface $logger, \Magento\Framework\App\State $appState)
     {
         $this->assetSource = $assetSource;
         $this->logger = $logger;
+        $this->appState = $appState;
     }
 
     /**
@@ -115,10 +124,65 @@ class Processor implements ContentProcessorInterface
         //TODO: make this configuratable or check magento mode
         $compiler = new Compiler();
         //Set line numbers
-        $compiler->setLineNumberStyle(Compiler::LINE_COMMENTS);
+        $lineNumberStyle = $this->getLineNumberStyle();
+        $compiler->setLineNumberStyle($lineNumberStyle);
+
         //Set formatting
-        $compiler->setFormatter(self::FORMATTER_NESTED);
+        $formatter = $this->getFormatting();
+        $compiler->setFormatter($formatter);
 
         return $compiler;
+    }
+
+    private function getLineNumberStyle()
+    {
+
+        $setting = $this->getLineNumberStyleConfig();
+        $style = null;
+        switch ($setting) {
+            case self::LINE_NUMBER_STYLE_AUTO:
+                if ($this->appState->getMode() === State::MODE_DEVELOPER) {
+                    $style = Compiler::LINE_COMMENTS;
+                }
+
+                break;
+            case self::LINE_NUMBER_STYLE_ON:
+                $style = Compiler::LINE_COMMENTS;
+                break;
+            case self::LINE_NUMBER_STYLE_OFF:
+                break;
+        }
+
+        return $style;
+    }
+
+    private function getLineNumberStyleConfig()
+    {
+        return self::LINE_NUMBER_STYLE_AUTO;
+    }
+
+    private function getFormatting()
+    {
+        $setting = $this->getFormattingConfig();
+
+        $formatting = self::FORMATTER_NESTED;
+        switch ($setting) {
+            case self::FORMATTER_AUTO:
+                if ($this->appState->getMode() === State::MODE_DEVELOPER) {
+                    $formatting = self::FORMATTER_NESTED;
+                } else {
+                    $formatting = self::FORMATTER_COMPACT;
+                }
+                break;
+            default:
+                $formatting = $setting;
+        }
+
+        return $formatting;
+    }
+
+    private function getFormattingConfig()
+    {
+        return self::FORMATTER_AUTO;
     }
 }
