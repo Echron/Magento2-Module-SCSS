@@ -4,6 +4,8 @@ namespace Echron\Scss\Preprocessor\Adapter\Scss;
 
 use Leafo\ScssPhp\Compiler;
 use Magento\Framework\App\State;
+use Magento\Framework\Phrase;
+use Magento\Framework\View\Asset\ContentProcessorException;
 use Magento\Framework\View\Asset\ContentProcessorInterface;
 use Magento\Framework\View\Asset\File;
 use Magento\Framework\View\Asset\Source;
@@ -79,6 +81,7 @@ class Processor implements ContentProcessorInterface
                 $styleFolder2,
                 BP,
             ];
+            $compiler->setImportPaths([]);
             $compiler->addImportPath(function ($path) use ($folders) {
 
                 $fileInfo = pathinfo($path);
@@ -108,14 +111,15 @@ class Processor implements ContentProcessorInterface
 
             });
 
-            $result = '/* Generated ' . date("Y-m-d H:i:s") . ' */' . PHP_EOL . $compiler->compile($content);
+            $result = $compiler->compile($content);
+            $result = '/* Generated ' . date("Y-m-d H:i:s") . ' */' . PHP_EOL . $result;
 
             return $result;
         } catch (\Exception $e) {
             $errorMessage = PHP_EOL . self::ERROR_MESSAGE_PREFIX . PHP_EOL . $path . PHP_EOL . $e->getMessage();
             $this->logger->critical($errorMessage);
 
-            return $errorMessage;
+            throw new ContentProcessorException(new Phrase($errorMessage));
         }
     }
 
