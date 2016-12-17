@@ -116,6 +116,8 @@ class Processor implements ContentProcessorInterface
 
             return $result;
         } catch (\Exception $e) {
+
+            die('Ex: ' . $e->getMessage());
             $errorMessage = PHP_EOL . self::ERROR_MESSAGE_PREFIX . PHP_EOL . $path . PHP_EOL . $e->getMessage();
             $this->logger->critical($errorMessage);
 
