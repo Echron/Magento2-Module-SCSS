@@ -2,7 +2,7 @@
   "name": "echron/magento2-module-scss",
   "description": "Magento2 module for Scss support",
   "type": "magento2-module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "authors": [
     {
